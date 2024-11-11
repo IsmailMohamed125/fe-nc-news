@@ -1,35 +1,73 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Homepage from "./pages/Homepage";
+import PageNotFound from "./pages/PageNotFound";
+import Articles, { loader as articlesLoader } from "./pages/Articles";
+import Topics, { loader as topicsLoader } from "./pages/Topics";
+import AppLayout from "./pages/AppLayout";
+import Error from "./pages/Error";
+import Article, { loader as articleLoader } from "./pages/Article";
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import { AuthProvider } from "./contexts/AuthContext";
+import { commentFormAction } from "./components/CommentForm";
+
+const router = createBrowserRouter([
+  {
+    element: <AppLayout />,
+    errorElement: <Error />,
+
+    children: [
+      {
+        path: "/",
+        element: <Homepage />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
+        errorElement: <Error />,
+      },
+      {
+        path: "/dashboard",
+        element: <Dashboard />,
+      },
+      {
+        path: "/topics",
+        element: <Topics />,
+        loader: topicsLoader,
+        errorElement: <Error />,
+      },
+      {
+        path: "/articles",
+        element: <Articles />,
+        loader: articlesLoader,
+        errorElement: <Error />,
+      },
+      {
+        path: "/articles/:articleID",
+        element: <Article />,
+        loader: articleLoader,
+        action: commentFormAction,
+        errorElement: <Error />,
+      },
+      {
+        path: "*",
+        element: <PageNotFound />,
+      },
+      // {
+      //   path: "/article/new",
+      //   element: <CreateArticle />,
+      //   action: createArticleAction,
+      // },
+    ],
+  },
+]);
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;
