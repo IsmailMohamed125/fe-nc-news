@@ -1,12 +1,44 @@
-import { useLoaderData } from "react-router-dom";
+import { useFetcher, useLoaderData } from "react-router-dom";
 import { getArticle, getArticleComments } from "../api/articles";
 import { getUser } from "../api/users";
 import CommentSection from "../components/CommentSection";
+import { HeartIcon } from "@heroicons/react/20/solid";
+import { useEffect, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { createComment, deleteComment, patchComment } from "../api/comments";
+import { updateArticle } from "../api/articles";
 
 function Article() {
   const { article, comments, user, commentUsers } = useLoaderData();
-  console.log(article, comments, user, commentUsers);
+  const [like, setLike] = useState(false);
+  const [likeCount, setLikeCount] = useState(like);
+  const data = useAuth();
+  const fetcher = useFetcher();
+  useEffect(() => {
+    const storedLikeState = localStorage.getItem(
+      `article-like-${article[0].article_id}`
+    );
+    if (storedLikeState === "true") {
+      setLike(true);
+    }
+  }, [article.article_id_id]);
+  const handleLikeClick = async () => {
+    if (user) {
+      const newLikeState = !like;
+      const vote = newLikeState ? 1 : -1;
+      const id = article[0].article_id;
+      const username = user[0].username;
 
+      setLike(newLikeState);
+      setLikeCount((cur) => cur + vote);
+
+      localStorage.setItem(`article-like-${id}`, newLikeState);
+      fetcher.submit(
+        { action: "likeArticle", article_id: id, vote, username },
+        { method: "patch" }
+      );
+    }
+  };
   return (
     <>
       <div className="relative isolate overflow-hidden bg-white px-6 py-24 sm:py-32 lg:overflow-visible lg:px-0">
@@ -41,19 +73,32 @@ function Article() {
             />
           </svg>
         </div>
+
         <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:items-start lg:gap-y-10">
           <div className="lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:mx-auto lg:grid lg:w-full lg:max-w-7xl lg:grid-cols-2 lg:gap-x-8 lg:px-8">
             <div className="lg:pr-4">
               <div className="lg:max-w-lg">
-                <div className="flex -space-x-2 overflow-hidden items-center gap-3">
+                <div className="flex -space-x-2 overflow-hidden items-center gap-5">
                   <img
                     alt=""
                     src={user[0].avatar_url}
                     className="inline-block h-10 w-10 rounded-full ring-2 ring-white"
                   />
-                  <span className="text-base/7 font-semibold text-indigo-600">
+                  <span className="text-base/7 font-semibold text-indigo-600 ">
                     {user[0].username}
                   </span>
+                  <div className="flex items-center gap-3">
+                    <HeartIcon
+                      onClick={handleLikeClick}
+                      aria-hidden="true"
+                      className={
+                        like
+                          ? "h-8 w-8 text-red-700 hover:cursor-pointer"
+                          : "h-8 w-8 text-stone-400 hover:text-red-400 hover:outline-red-500 hover:cursor-pointer"
+                      }
+                    />
+                    {article[0].votes}
+                  </div>
                 </div>
 
                 <h1 className="mt-2 text-pretty text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">
@@ -93,6 +138,48 @@ export async function loader({ params }) {
     })
   );
   return { article, comments, user, commentUsers };
+}
+
+export async function commentsAction({ request }) {
+  const formData = await request.formData();
+  const body = formData.get("comment");
+  const username = formData.get("username");
+  const article = formData.get("article");
+  const action = formData.get("action");
+  const commentID = formData.get("id");
+  const articleID = formData.get("article_id");
+  const vote = formData.get("vote");
+  if (!username) {
+    return { redirect: "/login" };
+  }
+
+  if (action === "likeComment") {
+    const voteBody = { inc_votes: vote };
+    // Update database or state as needed
+    await patchComment(commentID, voteBody);
+
+    return null; // No navigation or UI update
+  }
+
+  if (action === "likeArticle") {
+    const voteBody = { inc_votes: vote };
+    // Update database or state as needed
+    await updateArticle(articleID, voteBody);
+
+    return null; // No navigation or UI update
+  }
+
+  if (action === "deleteComment") {
+    await deleteComment(commentID);
+
+    return null; // No navigation or UI update
+  }
+
+  const newComment = { body, username };
+  await createComment(article, newComment);
+
+  // Redirect or return response
+  return { success: true };
 }
 
 export default Article;

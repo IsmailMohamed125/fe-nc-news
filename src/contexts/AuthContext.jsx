@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer } from "react";
+import { createContext, useContext, useReducer, useEffect } from "react";
 import { getUser } from "../api/users";
 
 const AuthContext = createContext();
@@ -24,16 +24,25 @@ function reducer(state, action) {
 }
 
 function AuthProvider({ children }) {
-  const [{ user, isAuthenticated }, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const [state, dispatch] = useReducer(reducer, initialState, (initial) => {
+    // Check localStorage for saved user state
+    const savedState = localStorage.getItem("authState");
+    if (savedState) {
+      return JSON.parse(savedState);
+    }
+    return initial;
+  });
+
+  const { user, isAuthenticated } = state;
+
+  useEffect(() => {
+    // Save the auth state to localStorage whenever it changes
+    localStorage.setItem("authState", JSON.stringify(state));
+  }, [state]);
 
   async function login(username) {
     let user = null;
-    console.log(username);
     if (username === testUser.username) {
-      console.log("reach");
       user = await getUser(username);
       dispatch({ type: "login", payload: user });
     }
@@ -41,6 +50,7 @@ function AuthProvider({ children }) {
 
   function logout() {
     dispatch({ type: "logout" });
+    localStorage.removeItem("authState"); // Remove from localStorage on logout
   }
 
   return (

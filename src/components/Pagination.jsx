@@ -18,14 +18,12 @@ export default function Pagination({ articlesCount }) {
   if (orderQuery) querySearch = querySearch + "&order=" + orderQuery;
   if (sortByQuery) querySearch = querySearch + "&sortBy=" + sortByQuery;
 
-  // console.log(articlesCount, pages, "pag");
   return (
     <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
       <div className="flex flex-1 justify-between sm:hidden">
         <button
           disabled={page < 2 ? true : false}
           onClick={() => {
-            console.log(page, "back");
             setPage((p) => p - 1);
             navigate(`/articles?p=${page - 1}${querySearch}`);
           }}
@@ -36,9 +34,7 @@ export default function Pagination({ articlesCount }) {
         <button
           disabled={page === pages ? true : false}
           onClick={() => {
-            console.log(page, "next");
             setPage((p) => p + 1);
-            console.log(page, "now");
             navigate(`/articles?p=${page + 1}${querySearch}`);
           }}
           className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -62,7 +58,6 @@ export default function Pagination({ articlesCount }) {
             <button
               disabled={page < 2 ? true : false}
               onClick={() => {
-                console.log(page, "back");
                 setPage((p) => p - 1);
                 navigate(`/articles?p=${page - 1}${querySearch}`);
               }}
@@ -85,9 +80,7 @@ export default function Pagination({ articlesCount }) {
             <button
               disabled={page === pages ? true : false}
               onClick={() => {
-                console.log(page, "next");
                 setPage((p) => p + 1);
-                console.log(page, "now");
                 navigate(`/articles?p=${page + 1}${querySearch}`);
               }}
               className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"

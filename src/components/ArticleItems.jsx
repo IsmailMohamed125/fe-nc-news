@@ -8,8 +8,6 @@ function ArticleItems({ article, user }) {
     day: "numeric",
   });
 
-  console.log(formattedDate);
-  console.log(user);
   return (
     <article
       key={article.article_id}

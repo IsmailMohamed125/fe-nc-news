@@ -41,7 +41,6 @@ function Articles() {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export async function loader({ params, request }) {
-  // console.log(params);
   const searchParams = new URL(request.url).searchParams;
   const searchSortByTerm = searchParams.get("sort_by");
   const searchOrderTerm = searchParams.get("order");

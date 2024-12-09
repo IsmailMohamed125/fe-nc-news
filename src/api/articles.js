@@ -1,13 +1,10 @@
 const API_URL = "https://ismails-news.onrender.com/api";
 
 export async function getArticles(queries) {
-  console.log(queries, "quer");
   let queryStr = `${API_URL}/articles?limit=6`;
   if (queries) queryStr = queryStr + queries;
-  console.log(queryStr, "str");
   const res = await fetch(queryStr);
 
-  // fetch won't throw error on 400 errors (e.g. when URL is wrong), so we need to do it manually. This will then go into the catch block, where the message is set
   if (!res.ok) throw Error("Failed getting articles");
 
   const { articles } = await res.json();
@@ -43,26 +40,8 @@ export async function createArticle(newArticle) {
     });
 
     if (!res.ok) throw Error();
-    const { data } = await res.json();
-    return data;
-  } catch {
-    throw Error("Failed creating your article");
-  }
-}
-
-export async function createCommentOnArticle(id, newComment) {
-  try {
-    const res = await fetch(`${API_URL}/articles/${id}/comments`, {
-      method: "POST",
-      body: JSON.stringify(newComment),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!res.ok) throw Error();
-    const { data } = await res.json();
-    return data;
+    const { article } = await res.json();
+    return article[0];
   } catch {
     throw Error("Failed creating your article");
   }
@@ -79,9 +58,18 @@ export async function updateArticle(id, updateObj) {
     });
 
     if (!res.ok) throw Error();
-    // We don't need the data, so we don't return anything
   } catch (err) {
-    console.log(err);
-    throw Error("Failed updating your order");
+    throw Error("Failed updating your article");
   }
+}
+
+export async function getUserArticles() {
+  let queryStr = `${API_URL}/articles`;
+  const res = await fetch(queryStr);
+
+  if (!res.ok) throw Error("Failed getting articles");
+
+  const { articles } = await res.json();
+
+  return articles;
 }

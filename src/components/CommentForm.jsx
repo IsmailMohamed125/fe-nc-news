@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Form, useNavigate } from "react-router-dom";
-import { createComment } from "../api/comments";
 
 function CommentForm({ article }) {
   const [isFocused, setIsFocused] = useState(false);
@@ -19,7 +18,7 @@ function CommentForm({ article }) {
   };
   if (!user) {
     // Redirect to login page if user is not authenticated
-    navigate("/login");
+    // navigate("/login");
     return null; // Don't render form if redirecting
   }
 
@@ -47,7 +46,7 @@ function CommentForm({ article }) {
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               onFocus={handleFocus}
-              className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm/6"
+              className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm/6 hover:cursor-pointer w-full"
             />
             <input type="hidden" name="username" value={user[0].username} />
             <input type="hidden" name="article" value={article} />
@@ -74,27 +73,6 @@ function CommentForm({ article }) {
       </div>
     </Form>
   );
-}
-
-// actions.js
-export async function commentFormAction({ request }) {
-  const formData = await request.formData();
-  const body = formData.get("comment");
-  const username = formData.get("username");
-  const article = formData.get("article");
-
-  if (!username) {
-    return { redirect: "/login" };
-  }
-
-  // Proceed with comment submission
-  const newComment = { body, username };
-  console.log("Comment submitted by:", username, "Comment:", body);
-
-  // Here you can handle API submission or other logic
-  const comment = await createComment(article, newComment);
-  // Redirect or return response
-  return { success: true };
 }
 
 export default CommentForm;

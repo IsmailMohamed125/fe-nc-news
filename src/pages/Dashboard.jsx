@@ -1,9 +1,13 @@
-import { AtSymbolIcon } from "@heroicons/react/20/solid";
+import { AtSymbolIcon, PlusIcon } from "@heroicons/react/20/solid";
 import { useAuth } from "../contexts/AuthContext";
+import { getUserArticles } from "../api/articles";
+import { Link, useLoaderData } from "react-router-dom";
+import ArticleItems from "../components/ArticleItems";
 
 function Dashboard() {
   const { user } = useAuth();
-  console.log(user);
+  const userArticles = useLoaderData();
+
   return (
     <div>
       <header className="bg-white shadow">
@@ -42,9 +46,38 @@ function Dashboard() {
             </div>
           </div>
         </div>
+        <div className="mx-auto  px-4 py-6 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+              Your Articles
+            </h2>
+            <Link to="/articles/new">
+              <PlusIcon aria-hidden="true" className="h-8 w-8 text-zinc-900" />
+            </Link>
+          </div>
+          <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 border-t border-gray-200 pt-10 sm:mt-16 sm:pt-16 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+            {userArticles.map((article) => (
+              <ArticleItems
+                article={article}
+                key={article.article_id}
+                user={user}
+              />
+            ))}
+          </div>
+        </div>
       </main>
     </div>
   );
+}
+
+export async function loader() {
+  const username = "tickle122";
+  const articles = await getUserArticles();
+  const userArticles = articles.filter((article) => {
+    return article.author === username;
+  });
+
+  return userArticles;
 }
 
 export default Dashboard;

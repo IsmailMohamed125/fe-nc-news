@@ -5,11 +5,14 @@ import Articles, { loader as articlesLoader } from "./pages/Articles";
 import Topics, { loader as topicsLoader } from "./pages/Topics";
 import AppLayout from "./pages/AppLayout";
 import Error from "./pages/Error";
-import Article, { loader as articleLoader } from "./pages/Article";
-import Dashboard from "./pages/Dashboard";
+import Article, {
+  loader as articleLoader,
+  commentsAction,
+} from "./pages/Article";
+import Dashboard, { loader as dashboardLoader } from "./pages/Dashboard";
 import Login from "./pages/Login";
 import { AuthProvider } from "./contexts/AuthContext";
-import { commentFormAction } from "./components/CommentForm";
+import ArticleForm, { articleAction } from "./pages/ArticleForm";
 
 const router = createBrowserRouter([
   {
@@ -29,6 +32,8 @@ const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: <Dashboard />,
+        loader: dashboardLoader,
+        errorElement: <Error />,
       },
       {
         path: "/topics",
@@ -46,18 +51,19 @@ const router = createBrowserRouter([
         path: "/articles/:articleID",
         element: <Article />,
         loader: articleLoader,
-        action: commentFormAction,
+        action: commentsAction,
+        errorElement: <Error />,
+      },
+      {
+        path: "/articles/new",
+        element: <ArticleForm />,
+        action: articleAction,
         errorElement: <Error />,
       },
       {
         path: "*",
         element: <PageNotFound />,
       },
-      // {
-      //   path: "/article/new",
-      //   element: <CreateArticle />,
-      //   action: createArticleAction,
-      // },
     ],
   },
 ]);
