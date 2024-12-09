@@ -9,10 +9,12 @@ import { createComment, deleteComment, patchComment } from "../api/comments";
 import { updateArticle } from "../api/articles";
 
 function Article() {
-  const { article, comments, user, commentUsers } = useLoaderData();
+  const { article, comments, author, commentUsers } = useLoaderData();
+
   const [like, setLike] = useState(false);
   const [likeCount, setLikeCount] = useState(like);
-  const data = useAuth();
+  const { user } = useAuth();
+
   const fetcher = useFetcher();
   useEffect(() => {
     const storedLikeState = localStorage.getItem(
@@ -81,11 +83,11 @@ function Article() {
                 <div className="flex -space-x-2 overflow-hidden items-center gap-5">
                   <img
                     alt=""
-                    src={user[0].avatar_url}
+                    src={author[0].avatar_url}
                     className="inline-block h-10 w-10 rounded-full ring-2 ring-white"
                   />
                   <span className="text-base/7 font-semibold text-indigo-600 ">
-                    {user[0].username}
+                    {author[0].username}
                   </span>
                   <div className="flex items-center gap-3">
                     <HeartIcon
@@ -131,13 +133,13 @@ function Article() {
 export async function loader({ params }) {
   const article = await getArticle(params.articleID);
   const comments = await getArticleComments(params.articleID);
-  const user = await getUser(article[0].author);
+  const author = await getUser(article[0].author);
   const commentUsers = await Promise.all(
     comments.map(async (comment) => {
       return await getUser(comment.author);
     })
   );
-  return { article, comments, user, commentUsers };
+  return { article, comments, author, commentUsers };
 }
 
 export async function commentsAction({ request }) {

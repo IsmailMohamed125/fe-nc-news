@@ -62,7 +62,7 @@ function CommentItem({ comment, comment_user }) {
               {comment_user.username}
             </p>
             <p className="flex items-center gap-2 text-sm/6 text-gray-900 sm:hidden">
-              {comment_user.username === user[0].username ? (
+              {user && comment_user.username === user[0].username ? (
                 <TrashIcon
                   onClick={handleDeleteClick}
                   aria-hidden="true"
@@ -88,7 +88,7 @@ function CommentItem({ comment, comment_user }) {
       </div>
       <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
         <p className="flex items-center gap-2 text-sm/6 text-gray-900">
-          {comment_user.username === user[0].username ? (
+          {user && comment_user.username === user[0].username ? (
             <TrashIcon
               onClick={handleDeleteClick}
               aria-hidden="true"
